@@ -145,6 +145,12 @@
   tags:
     - install_bbb-playback-screenshare
 
+- name: Install bbb webhooks package
+  apt: name=bbb-webhooks state=present
+  when: bbb_install_webhooks == True
+  tags:
+    - install_bbb-webhooks
+
 - name: Install bbb-demo package
   apt: name=bbb-demo state=present
   when: bbb_install_demo == True

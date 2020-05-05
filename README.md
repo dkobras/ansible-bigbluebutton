@@ -31,6 +31,7 @@ To get up _BigBlueButton_ up and running the following variables can be configur
   * `bbb_install_playback_notes`: Install the bbb-playback-notes package to play back shared notes from a recorded session (Default: `True`).
   * `bbb_install_playback_podcast`: Install the bbb-playback-podcast package to play back audio from a recorded session (Default: `True`).
   * `bbb_install_playback_screenshare`: Install the bbb-playback-screenshare package to play back shared screens from a recorded session (Default: `True`).
+  * `bbb_install_webhooks`: Install the bbb-webhooks package, useful to integrate bbb into other web applications (Default: `True`).
 
 ## Example Playbook
 
