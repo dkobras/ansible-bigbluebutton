@@ -6,8 +6,10 @@ bbb_install_playback_notes: True
 bbb_install_playback_podcast: True
 bbb_install_playback_screenshare: True
 bbb_install_webhooks: True
+bbb_install_greenlight: True
 bbb_install_demo: False
 bbb_install_check: False
+bbb_configure_firewall: True
 bbb_configure_nat: False
 bbb_configure_ssl: False
 bbb_ssl_webroot_path: /var/www/bigbluebutton-default

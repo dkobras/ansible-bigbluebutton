@@ -1,0 +1,37 @@
+---
+- name: Install UFW firewall
+  apt:
+    name: ufw
+    state: present
+  tags:
+    - bbb_configure_ufw
+
+- name: Allow OpenSSH access in firewall
+  ufw:
+    rule: allow
+    name: OpenSSH
+  tags:
+    - bbb_configure_ufw
+
+- name: Allow HTTP/HTTPS access in firewall
+  ufw:
+    rule: allow
+    name: "Nginx Full"
+  tags:
+    - bbb_configure_ufw
+
+- name: Allow media connections in firewall
+  ufw:
+    rule: allow
+    proto: udp
+    port: 16384:32768
+  tags:
+    - bbb_configure_ufw
+
+- name: Enable firewall rules
+  ufw:
+    state: enabled
+    policy: deny
+  tags:
+    - bbb_enable_ufw
+

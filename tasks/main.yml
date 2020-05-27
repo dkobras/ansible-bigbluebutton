@@ -81,6 +81,12 @@
     - bbb-repositories
     - repositories
 
+# BigBlueButton UFW firewall configuration
+- include_tasks: firewall.yml
+  when: bbb_configure_firewall == True
+  tags:
+    - firewall
+
 - name: Check BigBlueButton is installed
   apt: name=bigbluebutton state=present
   tags:
