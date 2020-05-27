@@ -33,6 +33,22 @@ To get up _BigBlueButton_ up and running the following variables can be configur
   * `bbb_install_playback_podcast`: Install the bbb-playback-podcast package to play back audio from a recorded session (Default: `True`).
   * `bbb_install_playback_screenshare`: Install the bbb-playback-screenshare package to play back shared screens from a recorded session (Default: `True`).
   * `bbb_install_webhooks`: Install the bbb-webhooks package, useful to integrate bbb into other web applications (Default: `True`).
+  * `bbb_install_greenlight`: Install the Greenlight frontend (Default: `False`)
+
+In order to deploy a basic setup of the _Greenlight_ frontend alongside _BigBlueButton_, the following variables can be set:
+
+  * `bbb_greenlight_image`: Docker image to run for Greenlight (Default: `bigbluebutton/greenlight:v2`)
+  * `bbb_greenlight_etcdir`: Path to configuration directory (Default: `/etc/bigbluebutton/greenlight`)
+  * `bbb_greenlight_libdir`: Path to working directory (Default: `/var/lib/greenlight`)
+  * `bbb_greenlight_dbdir`: Path to database directory (Default: Subdirectory `production` below `bbb_greenlight_libdir`)
+  * `bbb_greenlight_logdir`: Path to log directory (Default: `/var/log/greenlight`)
+  * `bbb_greenlight_redirect_root`: Whether to add a redirection from the domain root URL to Greenlight (Default: `false`)
+  * `bbb_greenlight_db_adapter`: Database type to use (`sqlite3` or `postgresql`, default: `postgresql`)
+  * `bbb_greenlight_db_host`: Name of database host. For `postgresql` adapter, special name `db` will spawn database in a separate container (Default: `db`)
+  * `bbb_greenlight_db_username`: User name for database connection (Default: `postgres`)
+  * `bbb_greenlight_db_name`: Name of Greenlight database (Default: `greenlight_production`)
+  * `bbb_greenlight_db_port`: Host port for database connection (Default: `5432`)
+  * `bbb_greenlight_environment`: Dictionary of additional Greenlight environment variables (Default: empty)
 
 ## Example Playbook
 

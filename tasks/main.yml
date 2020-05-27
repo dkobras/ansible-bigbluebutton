@@ -239,3 +239,8 @@
   debug: msg="{{ bbb_check_out }}"
   tags:
     - bbb-check_install
+
+- include_tasks: greenlight.yml
+  when: bbb_install_greenlight == True
+  tags:
+    - greenlight

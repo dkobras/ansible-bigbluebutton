@@ -1,0 +1,233 @@
+---
+- name: Enable https support for apt
+  apt:
+    name: apt-transport-https
+    state: present
+  tags:
+    - apt_transport_https
+    - docker
+
+- name: Check Docker apt key is present
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  tags:
+    - docker-apt_key
+    - docker
+
+- name: Check Docker repo is enabled
+  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" state=present
+  tags:
+    - docker-repositories
+    - repositories
+    - docker
+
+- name: Check Docker packages are installed
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+  tags:
+    - install_docker
+    - docker
+
+- name: Enable Docker daemon on startup
+  systemd: name="docker" enabled=True state="started"
+  tags:
+    - enable_docker
+    - docker
+
+- name: Set download location for desired docker-compose version
+  set_fact:
+    docker_compose_download_url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+  when: docker_compose_version is defined and docker_compose_version != "latest"
+  tags:
+    - docker-compose
+
+- name: Determine latest upstream release for docker-compose
+  uri:
+    url: https://api.github.com/repos/docker/compose/releases/latest
+  register: docker_compose_latest_json
+  when: docker_compose_download_url is undefined
+  tags:
+    - docker-compose
+
+- name: Extract download location for latest docker-compose
+  set_fact:
+    docker_compose_download_url: "{{ docker_compose_latest_json.json.assets | selectattr('name', 'equalto', 'docker-compose-Linux-x86_64') | map(attribute='browser_download_url') | first | string }}"
+  when: docker_compose_download_url is undefined
+  tags:
+    - docker-compose
+
+- name: Install up-to-date docker-compose
+  get_url:
+    url: "{{ docker_compose_download_url }}"
+    dest: "/usr/local/bin/docker-compose"
+    owner: root
+    group: root
+    mode: 0755
+    force: true
+  tags:
+    - docker-compose
+
+- name: Remove outdated docker-compose from distribution
+  apt:
+    name: docker-compose
+    state: absent
+  tags:
+    - docker-compose
+
+- name: Create greenlight directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ bbb_greenlight_dbdir }}"
+    - "{{ bbb_greenlight_etcdir }}"
+    - "{{ bbb_greenlight_logdir }}"
+  tags:
+    - greenlight-config
+
+- name: Examine BBB configuration
+  command: /usr/bin/bbb-conf --secret
+  register: bbb_conf_secret
+  tags:
+    - greenlight-config
+
+- name: Extract BBB endpoint and secret
+  set_fact:
+    bbb_greenlight_extracted_endpoint: "{{ bbb_conf_secret.stdout | regex_search('URL: (.*)', '\\1') | first }}"
+    bbb_greenlight_extracted_secret: "{{ bbb_conf_secret.stdout | regex_search('Secret: (.*)', '\\1') | first }}"
+  tags:
+    - greenlight-config
+
+- name: Check if greenlight secret file exists
+  stat:
+    path: "{{ bbb_greenlight_etcdir }}/.rails.secret"
+  register: bbb_greenlight_rails_secret_file
+  tags:
+    - greenlight-config
+
+- name: Create new greenlight secret
+  command: docker run --rm {{ bbb_greenlight_image }} bundle exec rake secret
+  register: bbb_greenlight_rails_secret
+  when: not bbb_greenlight_rails_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Persist new secret to file
+  copy:
+    content: "{{ bbb_greenlight_rails_secret.stdout }}"
+    dest: "{{ bbb_greenlight_etcdir }}/.rails.secret"
+    mode: 0600
+    owner: root
+    group: root
+  when: not bbb_greenlight_rails_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Read greenlight secret from file
+  command: cat "{{ bbb_greenlight_etcdir }}/.rails.secret"
+  register: bbb_greenlight_rails_secret_content
+  tags:
+    - greenlight-config
+
+- name: Transfer greenlight secret into proper variable
+  set_fact:
+    bbb_greenlight_rails_secret: "{{ bbb_greenlight_rails_secret_content.stdout }}"
+  tags:
+    - greenlight-config
+
+- name: Check if greenlight database secret file exists
+  stat:
+    path: "{{ bbb_greenlight_etcdir }}/.db.secret"
+  register: bbb_greenlight_db_secret_file
+  tags:
+    - greenlight-config
+
+- name: Create greenlight database password
+  set_fact:
+    bbb_greenlight_db_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+  when: not bbb_greenlight_db_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Persist new database secret to file
+  copy:
+    content: "{{ bbb_greenlight_db_password }}"
+    dest: "{{ bbb_greenlight_etcdir }}/.db.secret"
+    mode: 0600
+    owner: root
+    group: root
+  when: not bbb_greenlight_db_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Read greenlight database secret from file
+  command: cat "{{ bbb_greenlight_etcdir }}/.db.secret"
+  register: bbb_greenlight_db_secret_content
+  when: bbb_greenlight_db_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Transfer greenlight database secret into proper variable
+  set_fact:
+    bbb_greenlight_db_password: "{{ bbb_greenlight_db_secret_content.stdout }}"
+  when: bbb_greenlight_db_secret_file.stat.exists
+  tags:
+    - greenlight-config
+
+- name: Create greenlight docker-compose config
+  template:
+    src: templates/greenlight-docker-compose.yml.j2
+    dest: "{{ bbb_greenlight_etcdir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: 0600
+    validate: /usr/local/bin/docker-compose -f %s config -q
+  register: greenlight_config
+  tags:
+    - greenlight-config
+
+- name: Create greenlight NGINX config stub
+  template:
+    src: templates/greenlight.nginx.j2
+    dest: "/etc/bigbluebutton/nginx/greenlight.nginx"
+    owner: root
+    group: root
+    mode: 0644
+  register: nginx_config
+  tags:
+    - greenlight-config
+
+- name: Restart NGINX to activate greenlight changes
+  systemd:
+    name: nginx
+    state: restarted
+  when:
+    nginx_config.changed
+  tags:
+    - greenlight-config
+
+- name: Create greenlight systemd unit file
+  template:
+    src: templates/greenlight.service.j2
+    dest: /etc/systemd/system/greenlight.service
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - greenlight-service
+
+- name: Enable and start greenlight systemd service
+  systemd:
+    name: greenlight
+    enabled: true
+    state: "{{ 'restarted' if greenlight_config.changed else 'started' }}"
+  tags:
+    - greenlight-service
