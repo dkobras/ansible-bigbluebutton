@@ -11,7 +11,7 @@ services:
     environment:
 {% set bbb_greenlight_environment_combined = bbb_greenlight_environment_defaults | combine(bbb_greenlight_environment) -%}
 {% for envvar in bbb_greenlight_environment_combined %}
-      - {{ envvar }}={{ bbb_greenlight_environment_combined[envvar] }}
+      {{ envvar }}: "{{ bbb_greenlight_environment_combined[envvar] }}"
 {% endfor %}
     volumes:
       - {{ bbb_greenlight_logdir }}:/usr/src/app/log
@@ -29,7 +29,7 @@ services:
     volumes:
       - {{ bbb_greenlight_dbdir }}:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB={{ bbb_greenlight_db_name }}
-      - POSTGRES_USER="{{ bbb_greenlight_db_username }}"
-      - POSTGRES_PASSWORD="{{ bbb_greenlight_db_password }}"
+      POSTGRES_DB: "{{ bbb_greenlight_db_name }}"
+      POSTGRES_USER: "{{ bbb_greenlight_db_username }}"
+      POSTGRES_PASSWORD: "{{ bbb_greenlight_db_password }}"
 {% endif %}

@@ -29,14 +29,14 @@ bbb_greenlight_db_name: greenlight_production
 bbb_greenlight_db_port: 5432
 bbb_greenlight_environment: {}
 bbb_greenlight_environment_defaults:
-  HELP_URL: https://docs.bigbluebutton.org/greenlight/gl-overview.html
-  ALLOW_GREENLIGHT_ACCOUNTS: true
-  DEFAULT_REGISTRATION: open
-  RELATIVE_URL_ROOT: /b
-  ROOM_FEATURES: mute-on-join,require-moderator-approval,anyone-can-start,all-join-moderator
-  PAGINATION_NUMBER: 25
-  NUMBER_OF_ROWS: 25
-  MAINTENANCE_MODE: false
+  HELP_URL: "https://docs.bigbluebutton.org/greenlight/gl-overview.html"
+  ALLOW_GREENLIGHT_ACCOUNTS: "true"
+  DEFAULT_REGISTRATION: "open"
+  RELATIVE_URL_ROOT: "/b"
+  ROOM_FEATURES: "mute-on-join,require-moderator-approval,anyone-can-start,all-join-moderator"
+  PAGINATION_NUMBER: "25"
+  NUMBER_OF_ROWS: "25"
+  MAINTENANCE_MODE: "false"
   DB_ADAPTER: "{{ bbb_greenlight_db_adapter }}"
   DB_HOST: "{{ bbb_greenlight_db_host }}"
   DB_PORT: "{{ bbb_greenlight_db_port }}"
