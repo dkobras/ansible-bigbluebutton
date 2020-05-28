@@ -123,6 +123,16 @@
   tags:
     - greenlight-config
 
+- name: Create greenlight logrotate configuration
+  template:
+    src: templates/greenlight.logrotate.j2
+    dest: /etc/logrotate.d/greenlight
+    mode: 0644
+    owner: root
+    group: root
+  tags:
+    - greenlight-config
+
 - name: Examine BBB configuration
   command: /usr/bin/bbb-conf --secret
   changed_when: false
