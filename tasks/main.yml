@@ -232,6 +232,7 @@
 
 - name: Check BigBlueButton installation
   command: bbb-conf --check
+  changed_when: false
   register: bbb_check_out
   tags:
     - bbb-check_install

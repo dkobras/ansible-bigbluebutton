@@ -125,6 +125,7 @@
 
 - name: Examine BBB configuration
   command: /usr/bin/bbb-conf --secret
+  changed_when: false
   register: bbb_conf_secret
   tags:
     - greenlight-config
@@ -163,6 +164,7 @@
 
 - name: Read greenlight secret from file
   command: cat "{{ bbb_greenlight_etcdir }}/.rails.secret"
+  changed_when: false
   register: bbb_greenlight_rails_secret_content
   tags:
     - greenlight-config
@@ -200,6 +202,7 @@
 
 - name: Read greenlight database secret from file
   command: cat "{{ bbb_greenlight_etcdir }}/.db.secret"
+  changed_when: false
   register: bbb_greenlight_db_secret_content
   when: bbb_greenlight_db_secret_file.stat.exists
   tags:
