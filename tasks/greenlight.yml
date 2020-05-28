@@ -79,7 +79,38 @@
   tags:
     - docker-compose
 
-- name: Create greenlight directories
+# We restrict access permissions on libdir because it usually hosts the
+# database directory that is usually controlled by a DB container, and cannot
+# be sufficiently protected on the host itself (see below)
+- name: Create protected greenlight libdir
+  file:
+    path: "{{ bbb_greenlight_libdir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  tags:
+    - greenlight-config
+
+# The DB directory is usually mounted inside the DB container, and therefore
+# receives modes and ownership as the DB image sees fit. In particular, numeric
+# user and group ids may overlap with existing ids on the host. (In a typical
+# installation, the PostgreSQL image is set up for uid 999, that is also
+# assigend to the first dynamic system account on the host. The correspondig
+# service should obviously not be able to gain access to the DB file store.)
+# We cannot do much about it at this point, so we rely on strict permissions
+# on the enclosing libdir (see above) that block rogue access on the host
+# itself, but are irrelevant for the bind mount of the subdir into the
+# container. As such, here we just ensure the dbdir is actually present,
+# but leave the eventual modes and ownership up to the container.
+- name: Create greenlight database directory
+  file:
+    path: "{{ bbb_greenlight_dbdir }}"
+    state: directory
+  tags:
+    - greenlight-config
+
+- name: Create additional greenlight directories
   file:
     path: "{{ item }}"
     state: directory
@@ -87,7 +118,6 @@
     group: root
     mode: 0755
   loop:
-    - "{{ bbb_greenlight_dbdir }}"
     - "{{ bbb_greenlight_etcdir }}"
     - "{{ bbb_greenlight_logdir }}"
   tags:
