@@ -12,6 +12,8 @@ bbb_install_check: False
 bbb_configure_firewall: True
 bbb_configure_nat: False
 bbb_configure_ssl: False
+bbb_server_names:
+  - "{{ bbb_server_name }}"
 bbb_ssl_webroot_path: /var/www/bigbluebutton-default
 bbb_ssl_renewal_command_args: '--renew-hook "systemctl restart nginx"'
 ## Uncoment the following line to test on test network.

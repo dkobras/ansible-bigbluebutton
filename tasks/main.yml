@@ -4,10 +4,10 @@
     msg: "OS not supported for BigBlueButton installation"
   when: ansible_distribution != "Ubuntu" or ansible_distribution_version != "{{ bbb_ubuntu_version }}"
 
-- name: Check if bbb_server_name is defined
+- name: Check if primary BigBluebutton server name is defined
   assert:
     that:
-      - bbb_server_name != ""
+      - bbb_server_names[0] != ""
   tags:
     - bbb-check_vars
 
@@ -170,7 +170,7 @@
     - install_bbb-check
 
 - name: Set BigBlueButton server name
-  command: bbb-conf --setip "{{ bbb_server_name }}"
+  command: bbb-conf --setip "{{ bbb_server_names[0] }}"
   tags:
     - run_bbb-conf_setip
 

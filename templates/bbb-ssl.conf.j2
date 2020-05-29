@@ -1,11 +1,11 @@
 server {
   listen 80;
   listen [::]:80;
-  server_name {{ bbb_server_name }};
+  server_name {{ bbb_server_names|join(' ') }};
   listen 443 ssl;
   listen [::]:443 ssl;
-    ssl_certificate /etc/letsencrypt/live/{{ bbb_server_name }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ bbb_server_name }}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ bbb_server_names[0] }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ bbb_server_names[0] }}/privkey.pem;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
