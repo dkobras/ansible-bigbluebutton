@@ -224,6 +224,10 @@
   when: bbb_configure_ssl == True
 - include_tasks: ssl.yml
   when: bbb_configure_ssl == True
+- include_tasks: sip.yml
+  when: bbb_sip_providers is defined
+  tags:
+    - bbb-sip
 
 - name: Restart BigBlueButton
   command: bbb-conf --restart

@@ -35,6 +35,12 @@ To get up _BigBlueButton_ up and running the following variables can be configur
   * `bbb_install_webhooks`: Install the bbb-webhooks package, useful to integrate bbb into other web applications (Default: `True`).
   * `bbb_install_greenlight`: Install the Greenlight frontend (Default: `False`)
 
+To configure optional SIP dial-in, define a dict `bbb_sip_providers` (Default: unset) to supply information about each SIP provider. Each key in the dict
+corresponds to a provider config. Its value is another dict where each key maps to a parameter of the same name in the BBB SIP configuration. At least
+`username`, `password` (for the SIP credentials), `proxy` (FQDN of the SIP gateway), and extension (dial-in number) have to be set. The default dial-in
+number for display in human-readable format should be supplied in `bbb_sip_default_dialin`. A verbose dial-in message can be supplied in
+`bbb_sip_welcome_footer` (defaults to the message example given in the BBB SIP documentation).
+
 In order to deploy a basic setup of the _Greenlight_ frontend alongside _BigBlueButton_, the following variables can be set:
 
   * `bbb_greenlight_image`: Docker image to run for Greenlight (Default: `bigbluebutton/greenlight:v2`)
@@ -68,5 +74,23 @@ In order to deploy a basic setup of the _Greenlight_ frontend alongside _BigBlue
       bbb_install_check: True
       bbb_configure_ssl: True
       bbb_ssl_email: foo@bar.com
+      bbb_sip_default_dialin: "+613-555-1234"
+      bbb_sip_welcome_footer: "<br/><br/>dial %%DIALNUM%%, then enter %%CONFNUM%% as conference PIN."
+      bbb_sip_providers:
+        sipprovider1:
+          username: "123456789"
+          password: "topsecret"
+          extension: "6135551234"
+          proxy: sip.example.com
+          register: "true"
+          context: "public"
+        sipprovider2:
+          username: "11114444"
+          password: "changeme"
+          extension: "8005554321"
+          proxy: sip.example.org
+          register: "true"
+          context: "public"
+
 
 ```
