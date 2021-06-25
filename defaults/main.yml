@@ -15,7 +15,7 @@ bbb_configure_ssl: False
 bbb_server_names:
   - "{{ bbb_server_name }}"
 bbb_ssl_webroot_path: /var/www/bigbluebutton-default
-bbb_ssl_renewal_command_args: '--renew-hook "systemctl restart nginx"'
+bbb_ssl_renewal_command_args: '--post-hook "systemctl reload nginx"'
 ## Uncoment the following line to test on test network.
 # bbb_ssl_server: "https://acme-staging.api.letsencrypt.org/directory"
 bbb_greenlight_image: bigbluebutton/greenlight:v2

@@ -26,5 +26,5 @@ dependencies:
       letsencrypt_webroot_path: "{{ bbb_ssl_webroot_path }}"
       letsencrypt_email: "{{ bbb_ssl_email }}"
       letsencrypt_cert_domains: "{{ bbb_server_names }}"
-      bbb_ssl_renewal_command_args: '--renew-hook "systemctl restart nginx"'
+      letsencrypt_renewal_command_args: "{{ bbb_ssl_renewal_command_args }}"
     when: bbb_configure_ssl == True
