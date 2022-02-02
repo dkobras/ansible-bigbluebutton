@@ -245,6 +245,12 @@
   tags:
     - bbb-check_install
 
+- include_tasks: docker.yml
+  when: bbb_install_greenlight == True
+  tags:
+    - greenlight
+    - docker
+
 - include_tasks: greenlight.yml
   when: bbb_install_greenlight == True
   tags:
