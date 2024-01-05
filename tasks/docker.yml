@@ -1,6 +1,6 @@
 ---
 - name: Enable https support for apt
-  apt:
+  ansible.builtin.apt:
     name: apt-transport-https
     state: present
   tags:
@@ -8,7 +8,7 @@
     - docker
 
 - name: Check Docker apt key is present
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   tags:
@@ -16,14 +16,14 @@
     - docker
 
 - name: Check Docker repo is enabled
-  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" state=present
+  ansible.builtin.apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" state=present
   tags:
     - docker-repositories
     - repositories
     - docker
 
 - name: Check Docker packages are installed
-  apt:
+  ansible.builtin.apt:
     name:
       - docker-ce
       - docker-ce-cli
@@ -34,20 +34,23 @@
     - docker
 
 - name: Enable Docker daemon on startup
-  systemd: name="docker" enabled=True state="started"
+  ansible.builtin.systemd:
+    name: "docker"
+    enabled: true
+    state: started
   tags:
     - enable_docker
     - docker
 
 - name: Set download location for desired docker-compose version
-  set_fact:
+  ansible.builtin.set_fact:
     docker_compose_download_url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
   when: docker_compose_version is defined and docker_compose_version != "latest"
   tags:
     - docker-compose
 
 - name: Determine latest upstream release for docker-compose
-  uri:
+  ansible.builtin.uri:
     url: https://api.github.com/repos/docker/compose/releases/latest
   register: docker_compose_latest_json
   when: docker_compose_download_url is undefined
@@ -55,14 +58,14 @@
     - docker-compose
 
 - name: Extract download location for latest docker-compose
-  set_fact:
+  ansible.builtin.set_fact:
     docker_compose_download_url: "{{ docker_compose_latest_json.json.assets | selectattr('name', 'equalto', 'docker-compose-Linux-x86_64') | map(attribute='browser_download_url') | first | string }}"
   when: docker_compose_download_url is undefined
   tags:
     - docker-compose
 
 - name: Install up-to-date docker-compose
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ docker_compose_download_url }}"
     dest: "/usr/local/bin/docker-compose"
     owner: root
@@ -73,7 +76,7 @@
     - docker-compose
 
 - name: Remove outdated docker-compose from distribution
-  apt:
+  ansible.builtin.apt:
     name: docker-compose
     state: absent
   tags:
