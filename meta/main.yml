@@ -4,12 +4,10 @@ galaxy_info:
 
   license: MIT
 
-  min_ansible_version: 2.4
+  min_ansible_version: 2.8
 
   platforms:
   - name: Ubuntu
-    versions:
-     - xenial
 
   galaxy_tags: []
     # List tags for your role here, one per line. A tag is
@@ -21,10 +19,21 @@ galaxy_info:
     # alphanumeric characters. Maximum 20 tags per role.
 
 dependencies:
-  - role: thefinn93.letsencrypt
+  - role: geerlingguy.certbot
     vars:
-      letsencrypt_webroot_path: "{{ bbb_ssl_webroot_path }}"
-      letsencrypt_email: "{{ bbb_ssl_email }}"
-      letsencrypt_cert_domains: "{{ bbb_server_names }}"
-      letsencrypt_renewal_command_args: "{{ bbb_ssl_renewal_command_args }}"
+      certbot_install_method: package
+      certbot_create_if_missing: true
+      certbot_auto_renew: true
+      certbot_auto_renew_user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+      certbot_auto_renew_hour: "1"
+      certbot_auto_renew_minute: "44"
+      certbot_auto_renew_options: "--quiet"
+      certbot_admin_email: "{{ bbb_ssl_email }}"
+      certbot_certs:
+        - email: "{{ bbb_ssl_email }}"
+          webroot: "{{ bbb_ssl_webroot_path }}"
+          domains: "{{ bbb_server_names }}"
     when: bbb_configure_ssl == True
+  - role: geerlingguy.docker
+    vars:
+      docker_install_compose: true
