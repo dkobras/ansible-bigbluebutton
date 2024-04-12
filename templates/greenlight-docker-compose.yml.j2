@@ -16,6 +16,7 @@ services:
 {% endfor %}
     volumes:
       - {{ bbb_greenlight_logdir }}:/usr/src/app/log
+      - {{ bbb_greenlight_storagedir }}:/usr/src/app/storage
 {% if bbb_greenlight_db_adapter == 'sqlite3' %}
       - {{ bbb_greenlight_dbdir }}:/usr/src/app/db/production
 {% endif %}
